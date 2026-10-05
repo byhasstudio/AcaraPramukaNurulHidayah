@@ -3,40 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
 <title>shoope.com</title>
 <style>
-  html, body { margin: 0; height: 100%; }
+  :root {
+    --bg:#fff; --top:#dadce0; --text:#5f6368; --strong:#202124; --h1:#5f6368; --muted:#80868b;
+    --link:#1a73e8; --btn-bg:#1a73e8; --btn-fg:#fff; --btn-border:#dadce0; --icon:#9aa0a6;
+    --mat-bg:#fff; --mat-fg:#202124; --mat-sub:#5f6368; --mat-accent:#1a73e8; --mat-track:#e0e0e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#202124; --top:#3c4043; --text:#bdc1c6; --strong:#bdc1c6; --h1:#9aa0a6; --muted:#80868b;
+      --link:#8ab4f8; --btn-bg:#8ab4f8; --btn-fg:#202124; --btn-border:#5f6368; --icon:#acacac;
+      --mat-bg:#2b2d30; --mat-fg:#fff; --mat-sub:#c4c7c5; --mat-accent:#8ab4f8; --mat-track:#444;
+    }
+  }
+  html, body { margin:0; height:100%; }
   body {
-    background: #202124;
-    color: #bdc1c6;
-    font-family: Roboto, "Segoe UI", Tahoma, Arial, sans-serif;
-    font-size: 15px;
-    border-top: 3px solid #3c4043;
-    box-sizing: border-box;
+    background:var(--bg); color:var(--text);
+    font-family:Roboto,"Segoe UI",Tahoma,Arial,sans-serif; font-size:15px;
+    border-top:3px solid var(--top); box-sizing:border-box;
   }
-  .wrap { width: 600px; max-width: 90%; margin: 0 auto; padding-top: 160px; }
-  .icon { width: 33px; height: 42px; display: block; }
-  h1 { font-size: 24px; font-weight: 500; color: #9aa0a6; margin: 38px 0 20px; }
-  p { margin: 0 0 24px; line-height: 1.4; }
-  p b { color: #bdc1c6; }
-  .try { margin-bottom: 4px; }
-  ul { margin: 0 0 24px; padding-left: 40px; list-style: disc; }
-  li { margin: 0 0 4px; line-height: 20px; }
-  a { color: #8ab4f8; text-decoration: none; }
-  .code { font-size: 12px; color: #9aa0a6; text-transform: uppercase; }
-  .buttons { display: flex; justify-content: space-between; margin-top: 52px; }
-  button {
-    font: inherit; font-size: 13px; cursor: pointer;
-    border-radius: 16px; padding: 8px 16px; min-height: 32px;
-  }
-  #reload { background: #8ab4f8; color: #202124; border: 0; }
-  #reload:hover { background: #a1c2fa; }
-  #details { background: transparent; color: #8ab4f8; border: 1px solid #5f6368; }
-  #details:hover { background: rgba(138,180,248,.1); }
-  #more { display: none; margin-top: 32px; padding-bottom: 40px; }
-  #more h3 { font-size: 14px; font-weight: 700; color: #9aa0a6; margin: 0 0 6px; line-height: 24px; }
-  #more p { color: #80868b; margin: 0 0 22px; line-height: 24px; }
+  #loadbar { position:fixed; top:0; left:0; height:3px; width:0; background:var(--link); z-index:20; opacity:0; }
+  #loadbar.on { opacity:1; transition:width 2.4s cubic-bezier(.1,.7,.3,1); width:85%; }
+  #loadbar.done { opacity:0; width:100%; transition:width .2s, opacity .4s .2s; }
 
+  .wrap { width:600px; max-width:90%; margin:0 auto; padding-top:160px; }
+  .icon { width:33px; height:42px; display:block; fill:var(--icon); shape-rendering:crispEdges; }
+  h1 { font-size:24px; font-weight:500; color:var(--h1); margin:38px 0 20px; }
+  p { margin:0 0 24px; line-height:1.4; }
+  p b { color:var(--strong); }
+  .try { margin-bottom:4px; }
+  ul { margin:0 0 24px; padding-left:40px; list-style:disc; }
+  li { margin:0 0 4px; line-height:20px; }
+  a { color:var(--link); text-decoration:none; }
+  .code { font-size:12px; color:var(--h1); text-transform:uppercase; }
+  .buttons { display:flex; justify-content:space-between; margin-top:52px; }
+  button { font:inherit; font-size:13px; cursor:pointer; border-radius:16px; padding:8px 16px; min-height:32px; }
+  #reload { background:var(--btn-bg); color:var(--btn-fg); border:0; transition:opacity .2s; }
+  #reload:hover { opacity:.88; }
+  #reload:disabled { opacity:.55; cursor:default; }
+  #details { background:transparent; color:var(--link); border:1px solid var(--btn-border); }
+  #details:hover { background:rgba(138,180,248,.12); }
+
+  /* animasi buka-tutup Details */
+  #more { display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .35s ease, opacity .3s ease, margin .35s ease; margin-top:0; }
+  #more.open { grid-template-rows:1fr; opacity:1; margin-top:32px; }
+  #more > div { overflow:hidden; min-height:0; }
+  #more h3 { font-size:14px; font-weight:700; color:var(--h1); margin:0 0 6px; line-height:24px; }
+  #more p { color:var(--muted); margin:0 0 22px; line-height:24px; }
+
+  /* dialog diagnostik */
   #diag-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:10; align-items:center; justify-content:center; }
   #diag { width:520px; max-width:92%; background:#fff; color:#000; font-family:"Segoe UI",Tahoma,Arial,sans-serif; font-size:12px; box-shadow:0 8px 32px rgba(0,0,0,.5); border:1px solid #6b6b6b; }
   #diag .tb { display:flex; justify-content:space-between; align-items:stretch; background:#fff; height:31px; padding:0 0 0 12px; font-size:12px; cursor:default; user-select:none; -webkit-user-select:none; touch-action:none; }
@@ -53,82 +70,146 @@
   #diag .ft { background:#f0f0f0; padding:12px 14px; text-align:right; border-top:1px solid #dfdfdf; }
   #diag .ft button { font:inherit; font-size:12px; background:#e1e1e1; color:#000; border:1px solid #adadad; border-radius:0; padding:3px 22px; min-height:0; }
   #diag .ft button:hover { background:#e5f1fb; border-color:#0078d7; }
-
-  @media (max-width: 640px) {
-    body { font-size: 14px; }
-    .wrap { padding: 56px 24px 0; max-width: none; width: auto; }
-    h1 { font-size: 22px; margin-top: 28px; }
-    ul { padding-left: 24px; }
-    .buttons { margin-top: 36px; }
-    #diag-bg { align-items: flex-end; }
-    #diag { width: 100%; max-width: 100%; }
-  }
-
   #diag .spin { display:none; }
-  #diag.mat { width:312px; max-width:calc(100% - 48px); background:#2b2d30; color:#e3e3e3; border:0; border-radius:28px; font-family:Roboto,"Segoe UI",Arial,sans-serif; font-size:14px; box-shadow:0 8px 28px rgba(0,0,0,.6); padding:24px 24px 16px; box-sizing:border-box; }
+  #diag.mat { width:312px; max-width:calc(100% - 48px); background:var(--mat-bg); color:var(--mat-fg); border:0; border-radius:28px; font-family:Roboto,"Segoe UI",Arial,sans-serif; font-size:14px; box-shadow:0 8px 28px rgba(0,0,0,.5); padding:24px 24px 16px; box-sizing:border-box; }
   #diag.mat .tb { display:none; }
-  #diag.mat .hd { padding:0 0 16px; font-size:22px; color:#fff; font-weight:400; }
-  #diag.mat .bd { padding:0; min-height:0; line-height:20px; color:#c4c7c5; }
-  #diag.mat .bd b { color:#fff; }
+  #diag.mat .hd { padding:0 0 16px; font-size:22px; color:var(--mat-fg); font-weight:400; }
+  #diag.mat .bd { padding:0; min-height:0; line-height:20px; color:var(--mat-sub); }
+  #diag.mat .bd b { color:var(--mat-fg); }
   #diag.mat .bar { display:none; }
-  #diag.mat .spin { display:block; width:28px; height:28px; margin:20px auto 4px; border:3px solid #444; border-top-color:#8ab4f8; border-radius:50%; animation:sp .9s linear infinite; }
+  #diag.mat .spin { display:block; width:28px; height:28px; margin:20px auto 4px; border:3px solid var(--mat-track); border-top-color:var(--mat-accent); border-radius:50%; animation:sp .9s linear infinite; }
   @keyframes sp { to { transform:rotate(360deg); } }
   #diag.mat .ft { background:transparent; border:0; padding:24px 0 0; }
-  #diag.mat .ft button { background:transparent; border:0; color:#8ab4f8; font-size:14px; font-weight:500; padding:8px 12px; border-radius:20px; }
-  #diag.mat .ft button:hover { background:rgba(138,180,248,.12); }
-  @media (max-width: 640px) {
-    #diag-bg { align-items: center !important; }
-    #diag.mat { width:312px; max-width:calc(100% - 48px); }
+  #diag.mat .ft button { background:transparent; border:0; color:var(--mat-accent); font-size:14px; font-weight:500; padding:8px 12px; border-radius:20px; }
+  #diag.mat .ft button:hover { background:rgba(138,180,248,.15); }
+
+  @media (max-width:640px) {
+    body { font-size:14px; }
+    .wrap { padding:56px 24px 0; max-width:none; width:auto; }
+    h1 { font-size:22px; margin-top:28px; }
+    ul { padding-left:24px; }
+    .buttons { margin-top:36px; }
+    #diag-bg { align-items:center; }
   }
+
+  /* Windows 11 Network Diagnostics */
+  #diag:not(.mat) { width:574px; max-width:94%; min-height:442px; display:flex; flex-direction:column; border:1px solid #0078d7; background:#fff; font-size:12px; }
+  #diag:not(.mat) .tb { position:relative; height:64px; background:#0078d7; padding:0; color:#fff; }
+  #diag:not(.mat) .tb .ttl { position:absolute; left:8px; bottom:10px; gap:8px; }
+  #diag:not(.mat) .tb .ttl svg { width:16px; height:14px; }
+  #diag:not(.mat) .tb .x { position:absolute; top:0; right:0; width:46px; height:32px; color:#fff; }
+  #diag:not(.mat) .tb .x:hover { background:#e81123; color:#fff; }
+  #diag:not(.mat) .tb .x:active { background:#f1707a; color:#000; }
+  #diag:not(.mat) .hd { padding:20px 40px 0; font-size:18px; line-height:24px; color:#003399; }
+  #diag:not(.mat) .bd { flex:1; padding:22px 40px 0; min-height:0; line-height:1.4; color:#000; }
+  #diag:not(.mat) .bar { width:355px; max-width:100%; height:15px; margin:24px auto 0; border:0; background:#f0f0f0; position:relative; overflow:hidden; }
+  #diag:not(.mat) .bar i { position:absolute; top:0; left:0; width:39px; height:100%; margin:0; background:#0078d7; animation:diagmv 2.4s linear infinite; }
+  @keyframes diagmv { from{left:-39px} to{left:100%} }
+  #diag .note { display:none; margin:0 40px 22px; padding:8px 6px; background:#fffbcc; color:#000; line-height:1.4; }
+  #diag:not(.mat) .note { display:block; }
+  #diag .note a { color:#0066cc; text-decoration:underline; }
+  #diag:not(.mat) .ft { padding:14px 16px; background:#f0f0f0; border-top:1px solid #dfdfdf; text-align:right; }
+  #diag:not(.mat) .ft button { background:#fdfdfd; border:1px solid #adadad; border-radius:4px; padding:5px 20px; font-size:12px; }
+  #diag:not(.mat) .ft button:hover { background:#e5f1fb; border-color:#0078d7; }
 </style>
 </head>
 <body>
+  <div id="loadbar"></div>
   <div class="wrap">
-    <svg class="icon" viewBox="0 0 33 42" width="33" height="42" fill="#acacac" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="27" height="3"/><rect x="0" y="3" width="3" height="39"/><rect x="18" y="3" width="3" height="12"/><rect x="27" y="3" width="3" height="3"/><rect x="30" y="6" width="3" height="36"/><rect x="18" y="12" width="15" height="3"/><rect x="9" y="9" width="3" height="6"/><rect x="0" y="39" width="33" height="3"/><rect x="12" y="27" width="10" height="3"/><rect x="9" y="30" width="3" height="3"/><rect x="22" y="30" width="3" height="3"/></svg>
+    <svg class="icon" viewBox="0 0 33 42" width="33" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="27" height="3"/><rect x="0" y="3" width="3" height="39"/><rect x="18" y="3" width="3" height="12"/><rect x="27" y="3" width="3" height="3"/><rect x="30" y="6" width="3" height="36"/><rect x="18" y="12" width="15" height="3"/><rect x="9" y="9" width="3" height="6"/><rect x="0" y="39" width="33" height="3"/><rect x="12" y="27" width="10" height="3"/><rect x="9" y="30" width="3" height="3"/><rect x="22" y="30" width="3" height="3"/></svg>
 
-    <h1>This site can’t be reached</h1>
-    <p><b id="domain">shoope.com</b> took too long to respond.</p>
+    <h1 data-t="h1"></h1>
+    <p><b id="domain">shoope.com</b> <span data-t="timeout"></span></p>
 
-    <div class="try">Try:</div>
+    <div class="try" data-t="try"></div>
     <ul>
-      <li>Checking the connection</li>
-      <li><a href="#" onclick="showDetails(event)">Checking the proxy and the firewall</a></li>
-      <li id="diag-li"><a id="diag-link" href="#" onclick="openDiag(event)">Running Windows Network Diagnostics</a></li>
+      <li data-t="l1"></li>
+      <li><a href="#" data-t="l2" onclick="showDetails(event)"></a></li>
+      <li id="diag-li"><a id="diag-link" href="#" onclick="openDiag(event)"></a></li>
     </ul>
 
     <div class="code">ERR_CONNECTION_TIMED_OUT</div>
 
     <div class="buttons">
-      <button id="reload" onclick="location.reload()">Reload</button>
-      <button id="details" onclick="toggleDetails()">Details</button>
+      <button id="reload" onclick="doReload()"></button>
+      <button id="details" onclick="toggleDetails()"></button>
     </div>
 
-    <div id="more">
-      <h3>Check your Internet connection</h3>
-      <p>Check any cables and reboot any routers, modems, or other network devices you may be using.</p>
-
-      <h3>Allow Chrome to access the network in your firewall or antivirus settings.</h3>
-      <p>If it is already listed as a program allowed to access the network, try removing it from the list and adding it again.</p>
-
-      <h3>If you use a proxy server…</h3>
-      <p id="proxy-text">Go to the Chrome menu &gt; Settings &gt; System &gt; Open your computer's proxy settings &gt; Network &amp; internet &gt; Proxy and deselect "Automatically detect settings".</p>
-    </div>
+    <div id="more"><div>
+      <h3 data-t="d1h"></h3><p data-t="d1p"></p>
+      <h3 data-t="d2h"></h3><p data-t="d2p"></p>
+      <h3 data-t="d3h"></h3><p id="proxy-text"></p>
+    </div></div>
   </div>
 
   <div id="diag-bg">
     <div id="diag">
-      <div class="tb" id="diag-tb"><span class="ttl">Windows Network Diagnostics</span><span class="x" id="diag-x" onclick="closeDiag()"><svg viewBox="0 0 10 10"><path d="M0 0L10 10M10 0L0 10"/></svg></span></div>
-      <div class="hd" id="diag-title">Identifying problems...</div>
-      <div class="bd" id="diag-body">
-        Windows is checking your network connection.
-        <div class="bar"><i></i></div><div class="spin"></div>
-      </div>
-      <div class="ft"><button onclick="closeDiag()">Cancel</button></div>
+      <div class="tb" id="diag-tb"><span class="ttl"><svg viewBox="0 0 16 14"><rect x="1" y="1" width="11" height="8" fill="#e6e6e6" stroke="#444"/><rect x="2" y="2" width="9" height="6" fill="#3a8ee6"/><rect x="5" y="10" width="5" height="2" fill="#666"/><rect x="9" y="8" width="6" height="5" fill="#8bc34a" stroke="#444" stroke-width=".7"/></svg><span id="diag-ttl"></span></span><span class="x" id="diag-x" onclick="closeDiag()"><svg viewBox="0 0 10 10"><path d="M0 0L10 10M10 0L0 10"/></svg></span></div>
+      <div class="hd" id="diag-title"></div>
+      <div class="bd" id="diag-body"></div>
+      <div class="note" id="diag-note"></div>
+      <div class="ft"><button id="diag-btn" onclick="closeDiag()"></button></div>
     </div>
   </div>
 
 <script>
-  // Domain: 1) dari URL web, 2) dari ?d=namadomain.com, 3) cadangan shoope.com
+  /* ---------- Bahasa ---------- */
+  var L = {
+    en: {
+      h1:'This site can\u2019t be reached', timeout:'took too long to respond.', try:'Try:',
+      l1:'Checking the connection', l2:'Checking the proxy and the firewall',
+      diag_win:'Running Windows Network Diagnostics', diag:'Running Network Diagnostics',
+      reload:'Reload', details:'Details', hide:'Hide details',
+      d1h:'Check your Internet connection', d1p:'Check any cables and reboot any routers, modems, or other network devices you may be using.',
+      d2h:'Allow Chrome to access the network in your firewall or antivirus settings.', d2p:'If it is already listed as a program allowed to access the network, try removing it from the list and adding it again.',
+      d3h:'If you use a proxy server\u2026',
+      proxy_win:'Go to the Chrome menu > Settings > System > Open your computer\u2019s proxy settings > Network & internet > Proxy and deselect "Automatically detect settings".',
+      proxy_mob:'Go to the Chrome menu > Settings > Advanced > Proxy and make sure it is set to "No proxy" or "Direct".',
+      proxy_oth:'Go to the Chrome menu > Settings > System > Open your computer\u2019s proxy settings and deselect "Auto proxy discovery".',
+      w_ttl:'Windows Network Diagnostics', w_t1:'Detecting problems', w_b1:'Looking for problems in Web connectivity...', w_note:'Troubleshooters have moved and this tool will be retired.', w_learn:'Learn more.',
+      w_t2:'Windows couldn\u2019t identify the problem',
+      w_b2:'Your computer appears to be correctly configured, but the device or resource (<b>{h}</b>) is not responding.<br><br>The remote device or resource won\u2019t accept the connection.',
+      cancel:'Cancel', close:'Close',
+      m_t1:'Running diagnostics', m_b1:'Checking your network connection\u2026', m_t2:'No problem found',
+      m_b2:'Your {dev} seems to be connected, but <b>{h}</b> is not responding. Try again later.', ok:'OK', dev_m:'device', dev_c:'computer'
+    },
+    id: {
+      h1:'Situs ini tidak dapat dijangkau', timeout:'terlalu lama merespons.', try:'Coba:',
+      l1:'Memeriksa koneksi', l2:'Memeriksa proxy dan firewall',
+      diag_win:'Menjalankan Diagnostik Jaringan Windows', diag:'Menjalankan Diagnostik Jaringan',
+      reload:'Muat ulang', details:'Detail', hide:'Sembunyikan detail',
+      d1h:'Periksa koneksi Internet Anda', d1p:'Periksa kabel apa pun dan boot ulang router, modem, atau perangkat jaringan lain yang mungkin Anda gunakan.',
+      d2h:'Izinkan Chrome mengakses jaringan di setelan firewall atau antivirus Anda.', d2p:'Jika sudah tercantum sebagai program yang diizinkan mengakses jaringan, coba hapus dari daftar lalu tambahkan kembali.',
+      d3h:'Jika Anda menggunakan server proxy\u2026',
+      proxy_win:'Buka menu Chrome > Setelan > Sistem > Buka setelan proxy komputer Anda > Jaringan & internet > Proxy lalu hapus centang "Deteksi setelan secara otomatis".',
+      proxy_mob:'Buka menu Chrome > Setelan > Lanjutan > Proxy dan pastikan disetel ke "Tanpa proxy" atau "Langsung".',
+      proxy_oth:'Buka menu Chrome > Setelan > Sistem > Buka setelan proxy komputer Anda lalu hapus centang "Penemuan proxy otomatis".',
+      w_ttl:'Diagnostik Jaringan Windows', w_t1:'Mendeteksi masalah', w_b1:'Mencari masalah pada konektivitas Web...', w_note:'Pemecah masalah telah dipindahkan dan alat ini akan dihentikan.', w_learn:'Pelajari selengkapnya.',
+      w_t2:'Windows tidak dapat mengidentifikasi masalah',
+      w_b2:'Komputer Anda tampaknya dikonfigurasi dengan benar, tetapi perangkat atau sumber daya (<b>{h}</b>) tidak merespons.<br><br>Perangkat atau sumber daya jarak jauh tidak mau menerima koneksi.',
+      cancel:'Batal', close:'Tutup',
+      m_t1:'Menjalankan diagnostik', m_b1:'Memeriksa koneksi jaringan Anda\u2026', m_t2:'Tidak ada masalah ditemukan',
+      m_b2:'{dev} Anda tampaknya terhubung, tetapi <b>{h}</b> tidak merespons. Coba lagi nanti.', ok:'OK', dev_m:'Perangkat', dev_c:'Komputer'
+    }
+  };
+  var qLang = new URLSearchParams(location.search).get('lang');
+  var lang = (qLang && L[qLang]) ? qLang : (/^id\b/i.test(navigator.language || '') ? 'id' : 'en');
+  function t(k) { return L[lang][k]; }
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = t(e.dataset.t); });
+
+  /* ---------- Perangkat ---------- */
+  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+                 window.matchMedia('(max-width: 640px)').matches ||
+                 window.matchMedia('(pointer: coarse)').matches;
+  var isWin = !isMobile && /Windows/i.test(navigator.userAgent);
+  document.getElementById('diag-link').textContent = isWin ? t('diag_win') : t('diag');
+  document.getElementById('proxy-text').textContent = t(isWin ? 'proxy_win' : (isMobile ? 'proxy_mob' : 'proxy_oth'));
+  document.getElementById('reload').textContent = t('reload');
+  document.getElementById('details').textContent = t('details');
+  if (!isWin) document.getElementById('diag').className = 'mat';
+
+  /* ---------- Domain + favicon ---------- */
   (function () {
     var host = location.hostname.replace(/^www\./, '');
     if (!host) {
@@ -138,40 +219,51 @@
     host = host || 'shoope.com';
     document.getElementById('domain').textContent = host;
     document.title = host;
+
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 42" fill="#9aa0a6" shape-rendering="crispEdges">' +
+      '<rect width="27" height="3"/><rect y="3" width="3" height="39"/><rect x="18" y="3" width="3" height="12"/><rect x="27" y="3" width="3" height="3"/>' +
+      '<rect x="30" y="6" width="3" height="36"/><rect x="18" y="12" width="15" height="3"/><rect x="9" y="9" width="3" height="6"/>' +
+      '<rect y="39" width="33" height="3"/><rect x="12" y="27" width="10" height="3"/><rect x="9" y="30" width="3" height="3"/><rect x="22" y="30" width="3" height="3"/></svg>';
+    var link = document.createElement('link');
+    link.rel = 'icon'; link.type = 'image/svg+xml';
+    link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    document.head.appendChild(link);
   })();
 
-  // Deteksi perangkat: HP / Windows / lainnya
-  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-                 window.matchMedia('(max-width: 640px)').matches ||
-                 window.matchMedia('(pointer: coarse)').matches;
-  var isWin = !isMobile && /Windows/i.test(navigator.userAgent);
-
-  if (!isWin) {
-    document.getElementById('diag-link').textContent = 'Running Network Diagnostics';
-    document.getElementById('diag').className = 'mat';
-    var pr = document.getElementById('proxy-text');
-    pr.innerHTML = isMobile
-      ? 'Go to the Chrome menu &gt; Settings &gt; Advanced &gt; Proxy and make sure it is set to "No proxy" or "Direct".'
-      : 'Go to the Chrome menu &gt; Settings &gt; System &gt; Open your computer\u2019s proxy settings and deselect "Auto proxy discovery".';
+  /* ---------- Reload realistis ---------- */
+  var reloading = false;
+  function doReload() {
+    if (reloading) return;
+    reloading = true;
+    var btn = document.getElementById('reload'), bar = document.getElementById('loadbar');
+    btn.disabled = true;
+    bar.className = ''; void bar.offsetWidth; bar.className = 'on';
+    setTimeout(function () {
+      bar.className = 'done';
+      btn.disabled = false; reloading = false;
+    }, 2800 + Math.random() * 1200);
   }
 
-  // Drag & drop pop-up (title bar)
+  /* ---------- Details ---------- */
+  function setDetails(open) {
+    document.getElementById('more').classList.toggle('open', open);
+    document.getElementById('details').textContent = open ? t('hide') : t('details');
+  }
+  function showDetails(e) { e.preventDefault(); setDetails(true); }
+  function toggleDetails() { setDetails(!document.getElementById('more').classList.contains('open')); }
+
+  /* ---------- Dialog diagnostik ---------- */
   (function () {
     var tb = document.getElementById('diag-tb'), box = document.getElementById('diag');
     var sx, sy, ox = 0, oy = 0, dragging = false;
     tb.addEventListener('pointerdown', function (e) {
       if (e.target.closest('#diag-x')) return;
-      dragging = true; sx = e.clientX; sy = e.clientY;
-      tb.setPointerCapture(e.pointerId);
+      dragging = true; sx = e.clientX; sy = e.clientY; tb.setPointerCapture(e.pointerId);
     });
     tb.addEventListener('pointermove', function (e) {
-      if (!dragging) return;
-      box.style.transform = 'translate(' + (ox + e.clientX - sx) + 'px,' + (oy + e.clientY - sy) + 'px)';
+      if (dragging) box.style.transform = 'translate(' + (ox + e.clientX - sx) + 'px,' + (oy + e.clientY - sy) + 'px)';
     });
-    function end(e) {
-      if (!dragging) return;
-      dragging = false; ox += e.clientX - sx; oy += e.clientY - sy;
-    }
+    function end(e) { if (dragging) { dragging = false; ox += e.clientX - sx; oy += e.clientY - sy; } }
     tb.addEventListener('pointerup', end);
     tb.addEventListener('pointercancel', end);
     window.resetDiagPos = function () { ox = oy = 0; box.style.transform = ''; };
@@ -181,49 +273,28 @@
   function openDiag(e) {
     e.preventDefault();
     var host = document.getElementById('domain').textContent;
-    var T = isWin ? {
-      t1: 'Identifying problems...',
-      b1: 'Windows is checking your network connection.',
-      t2: 'Windows couldn\u2019t identify the problem',
-      b2: 'Your computer appears to be correctly configured, but the device or resource (<b>' + host + '</b>) is not responding.<br><br>The remote device or resource won\u2019t accept the connection.',
-      cancel: 'Cancel', close: 'Close'
-    } : {
-      t1: 'Running diagnostics',
-      b1: 'Checking your network connection\u2026',
-      t2: 'No problem found',
-      b2: 'Your ' + (isMobile ? 'device' : 'computer') + ' seems to be connected, but <b>' + host + '</b> is not responding. Try again later.',
-      cancel: 'Cancel', close: 'OK'
-    };
-    var btn = document.querySelector('#diag .ft button');
+    var T = isWin
+      ? { t1:t('w_t1'), b1:t('w_b1'), t2:t('w_t2'), b2:t('w_b2').replace('{h}', host), c:t('cancel'), x:t('close') }
+      : { t1:t('m_t1'), b1:t('m_b1'), t2:t('m_t2'),
+          b2:t('m_b2').replace('{dev}', t(isMobile ? 'dev_m' : 'dev_c')).replace('{h}', host), c:t('cancel'), x:t('ok') };
+    var btn = document.getElementById('diag-btn');
+    document.getElementById('diag-ttl').textContent = t('w_ttl');
+    document.getElementById('diag-note').innerHTML = t('w_note') + ' <a href="#" onclick="return false">' + t('w_learn') + '</a>';
     window.resetDiagPos();
     document.getElementById('diag-bg').style.display = 'flex';
     document.getElementById('diag-title').textContent = T.t1;
     document.getElementById('diag-body').innerHTML = T.b1 + '<div class="bar"><i></i></div><div class="spin"></div>';
-    btn.textContent = T.cancel;
+    btn.textContent = T.c;
     clearTimeout(diagTimer);
     diagTimer = setTimeout(function () {
       document.getElementById('diag-title').textContent = T.t2;
       document.getElementById('diag-body').innerHTML = T.b2;
-      btn.textContent = T.close;
+      btn.textContent = T.x;
     }, 3500);
   }
   function closeDiag() {
     clearTimeout(diagTimer);
     document.getElementById('diag-bg').style.display = 'none';
-  }
-  function showDetails(e) {
-    e.preventDefault();
-    document.getElementById('more').style.display = 'block';
-    var b = document.getElementById('details');
-    b.style.display = 'inline-block';
-    b.textContent = 'Hide details';
-  }
-  function toggleDetails() {
-    var m = document.getElementById('more');
-    var b = document.getElementById('details');
-    var open = m.style.display === 'block';
-    m.style.display = open ? 'none' : 'block';
-    b.textContent = open ? 'Details' : 'Hide details';
   }
 </script>
 </body>
