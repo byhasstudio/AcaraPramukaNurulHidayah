@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shoope.com</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #202124;
+    color: #bdc1c6;
+    font-family: Roboto, "Segoe UI", Tahoma, Arial, sans-serif;
+    font-size: 15px;
+    border-top: 3px solid #3c4043;
+    box-sizing: border-box;
+  }
+  .wrap { width: 600px; max-width: 90%; margin: 0 auto; padding-top: 160px; }
+  .icon { width: 33px; height: 42px; display: block; }
+  h1 { font-size: 24px; font-weight: 500; color: #9aa0a6; margin: 38px 0 20px; }
+  p { margin: 0 0 24px; line-height: 1.4; }
+  p b { color: #bdc1c6; }
+  .try { margin-bottom: 4px; }
+  ul { margin: 0 0 24px; padding-left: 40px; list-style: disc; }
+  li { margin: 0 0 4px; line-height: 20px; }
+  a { color: #8ab4f8; text-decoration: none; }
+  .code { font-size: 12px; color: #9aa0a6; text-transform: uppercase; }
+  .buttons { display: flex; justify-content: space-between; margin-top: 52px; }
+  button {
+    font: inherit; font-size: 13px; cursor: pointer;
+    border-radius: 16px; padding: 8px 16px; min-height: 32px;
+  }
+  #reload { background: #8ab4f8; color: #202124; border: 0; }
+  #reload:hover { background: #a1c2fa; }
+  #details { background: transparent; color: #8ab4f8; border: 1px solid #5f6368; }
+  #details:hover { background: rgba(138,180,248,.1); }
+  #more { display: none; margin-top: 32px; padding-bottom: 40px; }
+  #more h3 { font-size: 14px; font-weight: 700; color: #9aa0a6; margin: 0 0 6px; line-height: 24px; }
+  #more p { color: #80868b; margin: 0 0 22px; line-height: 24px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <svg class="icon" viewBox="0 0 33 42" width="33" height="42" fill="#acacac" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="27" height="3"/><rect x="0" y="3" width="3" height="39"/><rect x="18" y="3" width="3" height="12"/><rect x="27" y="3" width="3" height="3"/><rect x="30" y="6" width="3" height="36"/><rect x="18" y="12" width="15" height="3"/><rect x="9" y="9" width="3" height="6"/><rect x="0" y="39" width="33" height="3"/><rect x="12" y="27" width="10" height="3"/><rect x="9" y="30" width="3" height="3"/><rect x="22" y="30" width="3" height="3"/></svg>
+
+    <h1>This site can’t be reached</h1>
+    <p><b id="domain">shoope.com</b> took too long to respond.</p>
+
+    <div class="try">Try:</div>
+    <ul>
+      <li>Checking the connection</li>
+      <li><a href="#" onclick="showDetails(event)">Checking the proxy and the firewall</a></li>
+      <li><a href="#">Running Windows Network Diagnostics</a></li>
+    </ul>
+
+    <div class="code">ERR_CONNECTION_TIMED_OUT</div>
+
+    <div class="buttons">
+      <button id="reload" onclick="location.reload()">Reload</button>
+      <button id="details" onclick="toggleDetails()">Details</button>
+    </div>
+
+    <div id="more">
+      <h3>Check your Internet connection</h3>
+      <p>Check any cables and reboot any routers, modems, or other network devices you may be using.</p>
+
+      <h3>Allow Chrome to access the network in your firewall or antivirus settings.</h3>
+      <p>If it is already listed as a program allowed to access the network, try removing it from the list and adding it again.</p>
+
+      <h3>If you use a proxy server…</h3>
+      <p>Go to the Chrome menu &gt; Settings &gt; System &gt; Open your computer's proxy settings &gt; Network &amp; internet &gt; Proxy and deselect "Automatically detect settings".</p>
+    </div>
+  </div>
+
+<script>
+  // Domain: 1) dari URL web, 2) dari ?d=namadomain.com, 3) cadangan shoope.com
+  (function () {
+    var host = location.hostname.replace(/^www\./, '');
+    if (!host) {
+      var q = new URLSearchParams(location.search).get('d');
+      host = q ? q.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0] : '';
+    }
+    host = host || 'shoope.com';
+    document.getElementById('domain').textContent = host;
+    document.title = host;
+  })();
+
+  function showDetails(e) {
+    e.preventDefault();
+    document.getElementById('more').style.display = 'block';
+    var b = document.getElementById('details');
+    b.style.display = 'inline-block';
+    b.textContent = 'Hide details';
+  }
+  function toggleDetails() {
+    var m = document.getElementById('more');
+    var b = document.getElementById('details');
+    var open = m.style.display === 'block';
+    m.style.display = open ? 'none' : 'block';
+    b.textContent = open ? 'Details' : 'Hide details';
+  }
+</script>
+</body>
+</html>
