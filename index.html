@@ -193,20 +193,51 @@
     }
   };
   var qLang = new URLSearchParams(location.search).get('lang');
-  var lang = (qLang && L[qLang]) ? qLang : (/^id\b/i.test(navigator.language || '') ? 'id' : 'en');
+  var baseLang = ((qLang || navigator.language || 'en') + '').toLowerCase().split('-')[0];
+  if (baseLang === 'in') baseLang = 'id';
+  var lang = L[baseLang] ? baseLang : 'en';
   function t(k) { return L[lang][k]; }
-  document.documentElement.lang = lang;
-  document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = t(e.dataset.t); });
 
   /* ---------- Perangkat ---------- */
   var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
                  window.matchMedia('(max-width: 640px)').matches ||
                  window.matchMedia('(pointer: coarse)').matches;
   var isWin = !isMobile && /Windows/i.test(navigator.userAgent);
-  document.getElementById('diag-link').textContent = isWin ? t('diag_win') : t('diag');
-  document.getElementById('proxy-text').textContent = t(isWin ? 'proxy_win' : (isMobile ? 'proxy_mob' : 'proxy_oth'));
-  document.getElementById('reload').textContent = t('reload');
-  document.getElementById('details').textContent = t('details');
+  var RTL = ['ar','he','fa','ur'];
+  function applyTexts() {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = RTL.indexOf(lang) > -1 ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = t(e.dataset.t); });
+    document.getElementById('diag-link').textContent = isWin ? t('diag_win') : t('diag');
+    document.getElementById('proxy-text').textContent = t(isWin ? 'proxy_win' : (isMobile ? 'proxy_mob' : 'proxy_oth'));
+    document.getElementById('reload').textContent = t('reload');
+    var open = document.getElementById('more').classList.contains('open');
+    document.getElementById('details').textContent = open ? t('hide') : t('details');
+  }
+  applyTexts();
+
+  /* Bahasa yang belum ada kamusnya: terjemahkan otomatis di perangkat (Chrome Translator API) */
+  (async function autoTranslate() {
+    if (L[baseLang] || !('Translator' in self)) return;
+    try {
+      var av = await Translator.availability({ sourceLanguage: 'en', targetLanguage: baseLang });
+      if (av === 'unavailable') return;
+      var tr = await Translator.create({ sourceLanguage: 'en', targetLanguage: baseLang });
+      var out = {}, bold = { w_b2: 1, m_b2: 1 };
+      for (var k in L.en) {
+        var src = L.en[k].replace(/<b>\{h\}<\/b>/g, '{h}').replace(/<br><br>/g, '\n\n');
+        try {
+          var r = await tr.translate(src);
+          if (src.indexOf('{h}') > -1 && r.indexOf('{h}') < 0) throw 0;
+          if (src.indexOf('{dev}') > -1 && r.indexOf('{dev}') < 0) throw 0;
+          if (bold[k]) r = r.replace(/\{h\}/g, '<b>{h}</b>');
+          out[k] = r.replace(/\n\n/g, '<br><br>');
+        } catch (e) { out[k] = L.en[k]; }
+      }
+      L[baseLang] = out; lang = baseLang;
+      applyTexts();
+    } catch (e) { /* tetap Inggris */ }
+  })();
   if (!isWin) document.getElementById('diag').className = 'mat';
 
   /* ---------- Domain + favicon ---------- */
