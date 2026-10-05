@@ -39,9 +39,12 @@
 
   #diag-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:10; align-items:center; justify-content:center; }
   #diag { width:520px; max-width:92%; background:#fff; color:#000; font-family:"Segoe UI",Tahoma,Arial,sans-serif; font-size:12px; box-shadow:0 8px 32px rgba(0,0,0,.5); border:1px solid #6b6b6b; }
-  #diag .tb { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 0 8px 12px; font-size:12px; }
-  #diag .tb span.x { width:46px; text-align:center; cursor:pointer; font-size:14px; }
-  #diag .tb span.x:hover { background:#e81123; color:#fff; }
+  #diag .tb { display:flex; justify-content:space-between; align-items:stretch; background:#fff; height:31px; padding:0 0 0 12px; font-size:12px; cursor:default; user-select:none; -webkit-user-select:none; touch-action:none; }
+  #diag .tb .ttl { display:flex; align-items:center; }
+  #diag .tb .x { width:46px; height:100%; display:flex; align-items:center; justify-content:center; cursor:default; color:#000; }
+  #diag .tb .x svg { width:10px; height:10px; stroke:currentColor; stroke-width:1; fill:none; }
+  #diag .tb .x:hover { background:#e81123; color:#fff; }
+  #diag .tb .x:active { background:#f1707a; color:#000; }
   #diag .hd { padding:14px 20px 8px; font-size:18px; color:#003399; }
   #diag .bd { padding:6px 20px 22px; min-height:70px; line-height:1.5; }
   .bar { height:16px; border:1px solid #bcbcbc; background:#e6e6e6; margin-top:12px; overflow:hidden; }
@@ -114,7 +117,7 @@
 
   <div id="diag-bg">
     <div id="diag">
-      <div class="tb"><span>Windows Network Diagnostics</span><span class="x" onclick="closeDiag()">&#10005;</span></div>
+      <div class="tb" id="diag-tb"><span class="ttl">Windows Network Diagnostics</span><span class="x" id="diag-x" onclick="closeDiag()"><svg viewBox="0 0 10 10"><path d="M0 0L10 10M10 0L0 10"/></svg></span></div>
       <div class="hd" id="diag-title">Identifying problems...</div>
       <div class="bd" id="diag-body">
         Windows is checking your network connection.
@@ -152,6 +155,28 @@
       : 'Go to the Chrome menu &gt; Settings &gt; System &gt; Open your computer\u2019s proxy settings and deselect "Auto proxy discovery".';
   }
 
+  // Drag & drop pop-up (title bar)
+  (function () {
+    var tb = document.getElementById('diag-tb'), box = document.getElementById('diag');
+    var sx, sy, ox = 0, oy = 0, dragging = false;
+    tb.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('#diag-x')) return;
+      dragging = true; sx = e.clientX; sy = e.clientY;
+      tb.setPointerCapture(e.pointerId);
+    });
+    tb.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      box.style.transform = 'translate(' + (ox + e.clientX - sx) + 'px,' + (oy + e.clientY - sy) + 'px)';
+    });
+    function end(e) {
+      if (!dragging) return;
+      dragging = false; ox += e.clientX - sx; oy += e.clientY - sy;
+    }
+    tb.addEventListener('pointerup', end);
+    tb.addEventListener('pointercancel', end);
+    window.resetDiagPos = function () { ox = oy = 0; box.style.transform = ''; };
+  })();
+
   var diagTimer;
   function openDiag(e) {
     e.preventDefault();
@@ -170,6 +195,7 @@
       cancel: 'Cancel', close: 'OK'
     };
     var btn = document.querySelector('#diag .ft button');
+    window.resetDiagPos();
     document.getElementById('diag-bg').style.display = 'flex';
     document.getElementById('diag-title').textContent = T.t1;
     document.getElementById('diag-body').innerHTML = T.b1 + '<div class="bar"><i></i></div><div class="spin"></div>';
