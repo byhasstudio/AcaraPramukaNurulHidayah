@@ -300,6 +300,10 @@
     window.resetDiagPos = function () { ox = oy = 0; box.style.transform = ''; };
   })();
 
+  // "Learn more" -> halaman resmi Microsoft tentang pensiunnya MSDT/troubleshooter
+  var LEARN_URL = 'https://support.microsoft.com/search?query=' +
+    encodeURIComponent('Deprecation of Microsoft Support Diagnostic Tool (MSDT) and MSDT Troubleshooters');
+
   var diagTimer;
   function openDiag(e) {
     e.preventDefault();
@@ -310,7 +314,7 @@
           b2:t('m_b2').replace('{dev}', t(isMobile ? 'dev_m' : 'dev_c')).replace('{h}', host), c:t('cancel'), x:t('ok') };
     var btn = document.getElementById('diag-btn');
     document.getElementById('diag-ttl').textContent = t('w_ttl');
-    document.getElementById('diag-note').innerHTML = t('w_note') + ' <a href="#" onclick="return false">' + t('w_learn') + '</a>';
+    document.getElementById('diag-note').innerHTML = t('w_note') + ' <a href="' + LEARN_URL + '" target="_blank" rel="noopener noreferrer">' + t('w_learn') + '</a>';
     window.resetDiagPos();
     document.getElementById('diag-bg').style.display = 'flex';
     document.getElementById('diag-title').textContent = T.t1;
